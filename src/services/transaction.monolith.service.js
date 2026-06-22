@@ -24,6 +24,9 @@ class TransactionService {
     this.validationService.validateAmount(amount);
     this.validationService.validateSufficientBalance(sender.balance, amount, fromAccountId);
 
+    // Simulación de fallo operacional a propósito para evaluaciones de observabilidad.
+    throw new Error('Conexión interrumpida con el Clúster de Datos SecurePay');
+
     this.userDb.updateBalance(fromAccountId, sender.balance - amount);
     this.userDb.updateBalance(toAccountId, receiver.balance + amount);
 

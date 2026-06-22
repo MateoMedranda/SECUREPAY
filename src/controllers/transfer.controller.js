@@ -6,7 +6,7 @@ const transactionService = require('../services/transaction.monolith.service');
  * 
  * Espera un cuerpo JSON con: { fromAccountId, toAccountId, amount }
  */
-function executeTransfer(req, res) {
+function executeTransfer(req, res, next) {
   try {
     const { fromAccountId, toAccountId, amount } = req.body;
 
@@ -20,6 +20,11 @@ function executeTransfer(req, res) {
     const result = transactionService.executeTransfer(fromAccountId, toAccountId, Number(amount));
     return res.status(200).json(result);
   } catch (error) {
+    // Si es un fallo operacional (simulado), propágalo al manejador global para alertar a Sentry
+    if (error && error.message && error.message.includes('Conexión interrumpida')) {
+      return next(error);
+    }
+
     // Si la validación o deducción falla en el monolito, se maneja como error bad request.
     return res.status(400).json({
       error: 'Error en la transacción',

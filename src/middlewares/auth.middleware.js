@@ -43,10 +43,14 @@ function authMiddleware(req, res, next) {
     req.user = decodedToken;
     return next();
   } catch (error) {
-    return res.status(401).json({
-      error: 'Token inválido o expirado',
-      message: error.message
-    });
+    if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
+      return res.status(401).json({
+        error: 'Token inválido o expirado',
+        message: error.message
+      });
+    }
+
+    throw error;
   }
 }
 
